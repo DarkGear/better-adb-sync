@@ -61,8 +61,8 @@ class AndroidFileSystem(FileSystem):
 
     ADBSYNC_END_OF_COMMAND = "ADBSYNC END OF COMMAND"
 
-    def __init__(self, adb_arguments: List[str], adb_encoding: str) -> None:
-        super().__init__(adb_arguments)
+    def __init__(self, adb_arguments: List[str], adb_encoding: str, adb_skip_on_permission_error: bool) -> None:
+        super().__init__(adb_arguments, adb_skip_on_permission_error)
         self.adb_encoding = adb_encoding
         self.proc_adb_shell = subprocess.Popen(
             self.adb_arguments + ["shell"],
@@ -110,6 +110,8 @@ class AndroidFileSystem(FileSystem):
             raise FileNotFoundError
         elif self.RE_LS_NOT_A_DIRECTORY.fullmatch(line):
             raise NotADirectoryError
+        elif self.RE_ADB_PERMISSION_ERROR.fullmatch(line):
+            raise PermissionError
         elif match := self.RE_LS_TO_STAT.fullmatch(line):
             match_groupdict = match.groupdict()
             st_mode = stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH # 755

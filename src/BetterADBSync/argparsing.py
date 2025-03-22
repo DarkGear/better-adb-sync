@@ -18,6 +18,7 @@ class Args():
     force: bool
     show_progress: bool
     adb_encoding: str
+    adb_skip_on_permission_error: bool
 
     adb_bin: str
     adb_flags: List[str]
@@ -107,6 +108,11 @@ def get_cli_args(docstring: str, version: str) -> Args:
         dest = "adb_encoding",
         default = "UTF-8"
     )
+    parser.add_argument("-S", "--adb-skip-on-permission-error",
+        help = "Skip files and folders when an adb permission error is encountered",
+        action = "store_true",
+        dest = "adb_skip_on_permission_error"
+    )
 
     parser_adb = parser.add_argument_group(title = "ADB arguments",
         description = "By default ADB works for me without touching any of these, but if you have any specific demands then go ahead. See 'adb --help' for a full list of adb flags and options"
@@ -191,6 +197,7 @@ def get_cli_args(docstring: str, version: str) -> Args:
         args.force,
         args.show_progress,
         args.adb_encoding,
+        args.adb_skip_on_permission_error,
 
         args.adb_bin,
         args.adb_flags,

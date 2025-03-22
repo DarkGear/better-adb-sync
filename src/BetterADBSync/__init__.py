@@ -346,8 +346,8 @@ def main():
         adb_arguments.append(f"-{option}")
         adb_arguments.append(value)
 
-    fs_android = AndroidFileSystem(adb_arguments, args.adb_encoding)
-    fs_local = LocalFileSystem(adb_arguments)
+    fs_android = AndroidFileSystem(adb_arguments, args.adb_encoding, args.adb_skip_on_permission_error)
+    fs_local = LocalFileSystem(adb_arguments, args.adb_skip_on_permission_error)
 
     try:
         fs_android.test_connection()

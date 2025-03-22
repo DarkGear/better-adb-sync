@@ -1,6 +1,7 @@
 from typing import Iterable, Tuple
 import os
 import subprocess
+import sys
 
 from ..SAOLogging import logging_fatal
 
@@ -43,12 +44,14 @@ class LocalFileSystem(FileSystem):
         return os.path.normpath(path)
 
     def push_file_here(self, source: str, destination: str, show_progress: bool = False) -> None:
-        if show_progress:
-            kwargs_call = {}
-        else:
-            kwargs_call = {
-                "stdout": subprocess.DEVNULL,
-                "stderr": subprocess.DEVNULL
-            }
-        if subprocess.call(self.adb_arguments + ["pull", source, destination], **kwargs_call):
+        proc = subprocess.run(self.adb_arguments + ["pull", source, destination], stdout = sys.stdout if show_progress else subprocess.DEVNULL, stderr = subprocess.PIPE, encoding = "utf-8", text = True)
+
+        try:
+            proc.check_returncode()
+        except subprocess.SubprocessError as e:
+            final_err = e.stderr.strip()
+
+            if self.RE_ADB_PERMISSION_ERROR.fullmatch(final_err):
+                raise PermissionError
+            
             logging_fatal("Non-zero exit code from adb pull")
